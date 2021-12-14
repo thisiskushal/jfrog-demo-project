@@ -4,7 +4,6 @@ node {
         registryCredential = 'JfrogCreds'
         dockerImage = ''
     }
-    agent any
     
     stages {
         stage('Cloning Git') {

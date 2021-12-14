@@ -1,6 +1,7 @@
+def imagename = "thisiskushal/spring-petclinic:$BUILD_NUMBER"
+
 node {
     environment {
-        imagename = 'thisiskushal/spring-petclinic:$BUILD_NUMBER'
         registryCredential = 'JfrogCreds'
         dockerImage = ''
     }

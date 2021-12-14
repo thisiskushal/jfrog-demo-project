@@ -1,110 +1,53 @@
-# jfrog-demo-project
+## Table of contents
+* [The Problem Statement](#the-problem-statement)
+* [Deliverables](#deliverables)
+* [Environments](#environments)
+* [Setup](#setup)
+* [Launch](#launch)
 
-Given the 3-days timeline, I should have achieved the desired outcome but wasn't able to due to competing priorities both at work and home. 
-It is unfortunate if I miss my shot at the position based on this and at this time, can only hope for a chance to do the demo and explain my approach, 
-thought-process and learnings in the process.
+## The Problem Statement
+* Use Spring pet-clinic (https://github.com/spring-projects/spring-petclinic) as your project source code 
+* Build a Jenkins pipeline with the following steps:
+	* Compile the code
+	* Run the tests
+	* Package the project as a runnable Docker image
+* Make sure all dependencies are resolved from JCenter
+* Bonus - use JFrog Artifactory in your pipeline
 
-For the jenkins file to be sourced via SCM, the pipeline will have to be set to "Pipeline Script from SCM". 
+## Deliverables
+* GitHub link to the repo including
+	* Jenkins file within that repo
+	* Docker file within that repo
+	* readme.md file explaining the work and how to run the project 
+* Attached runnable docker image + the command to run it
 
-# A simple Jenkinsfile as follows would do the trick.
+	
+## Environments
+Project is created with:
+* Local Jenkins v2.324 running at http://localhost:8080
+	* Installed using `brew install jenkins`
+* Local Docker v20.10.8 to support docker commands within the jenkins pipeline.
+* Created Free Cloud hosted Artifactory running at https://santoshkushaldemo.jfrog.io/
+	
+## Setup
+* Installed plugins within "Manage Jenkins"
+* Downloaded settings.xml from Artifactory with encrypted password and replaced within .m2 folder
+* Forked the source code to locakand added the following config to the pom.xml
+```
+	<distributionManagement>
+		<repository>
+			<id>central</id>
+			<name>a0iaweaon0acy-artifactory-primary-0-releases</name>
+			<url>https://santoshkushaldemo.jfrog.io/artifactory/kushaldemo-libs-release</url>
+		</repository>
+		<snapshotRepository>
+			<id>snapshots</id>
+			<name>a0iaweaon0acy-artifactory-primary-0-snapshots</name>
+			<url>https://santoshkushaldemo.jfrog.io/artifactory/kushaldemo-libs-snapshot</url>
+		</snapshotRepository>
+	</distributionManagement>
+```
 
-node {
-git branch: 'main', url: 'https://github.com/spring-projects/spring-petclinic'
-sh 'chmod +x mvnw'
-sh './mvnw -B -DskipTests clean package'
-docker.build("myorg/myapp").push()
-}
-
-# The corresponsing Dockerfile would look like this. 
-
-FROM openjdk:8-jdk-alpine
-VOLUME /tmp
-COPY target/*.jar app.jar
-ENTRYPOINT ["java","-jar","-Dserver.port=8085","/app.jar"]
-
-Note: server.port=8085 was to not conflict with my local jenkins running by default on 8080.
-
-# Once available, the app can be launched from the image as follows:
-
-docker run myorg/myapp.
-
-# Alternatively,
-
-The scripted pipeline would look something like this
-
-pipeline {
-
-	agent any
-
-    tools {
-        /* You need to add a maven installer with name "3.6.0" in the Global Tools Configuration page 
-        or alternatively use docker agent to launch a container with official Maven:tag image and use
-        that to build/package code.*/
-        maven "MAVEN:3.6.0" 
-    }
-
-    stages {
-
-    	/* Checkout code from the public repository */
-    	stage('Checkout code') {
-	        steps {
-	            git branch: 'main', url: 'https://github.com/spring-projects/spring-petclinic'
-	        }
-	    }
-
-	    stage('Compile'){
-	  		steps{
-	    		sh 'mvn compile'
-	  		}       
-    	}
-
-	    stage('Code Quality'){
-	      steps{
-	        sh 'echo Sonarqube Code Quality Check Done'
-	      }
-	    }
-
-	    stage('Test'){
-	      steps{
-	        sh 'mvn test'
-	      }
-	    }
-
-	    stage('Package'){
-	      steps{
-	        sh 'mvn -DskipTests clean package'
-	      }
-	    }
-
-	    stage('Upload War File To Artifactory'){
-	      steps{
-	        sh 'echo Uploaded War file to Artifactory'
-	      }
-	    }
-	    
-	    stage('Checkout DockerFile') {
-	        steps {
-	            git branch: 'main', url: 'https://github.com/thisiskushal/jfrog-demo-project'
-	        }
-	    }
-	    
-	    stage('Deploy'){
-      agent any
-      steps{
-        sh label: '', script: '''rm -rf dockerimg
-            mkdir dockerimg
-            cd dockerimg
-            cp /var/jenkins_home/workspace/kushal-pipeline-demo/target/spring-petclinic-2.5.0-SNAPSHOT.jar .
-            touch dockerfile
-            cat <<EOT>>dockerfile
-            FROM tomcat
-            ADD spring-petclinic-2.5.0-SNAPSHOT.jar /usr/local/tomcat/webapps/
-            CMD ["catalina.sh", "run"]
-            EXPOSE 8080
-            EOT
-            sudo docker build -t kushal-pipeline-demo:$BUILD_NUMBER .
-            sudo docker container run -itd --name webserver$BUILD_NUMBER -p 8085 kushal-pipeline-demo:$BUILD_NUMBER'''
-	    }
-    }
-}
-}
+## Launch
+Run the following command to launch the access the petclinic website from the docker image hosted on the artifactory repository
+`docker run -p 8085:8085 santoshkushaldemo.jfrog.io/kushaldemo-docker/thisiskushal/spring-petclinic:latest`

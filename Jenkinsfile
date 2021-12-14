@@ -13,9 +13,14 @@ node {
         sh './mvnw compile'
     }
 
-    stage('Code Quality'){
-        sh 'echo Sonarqube Code Quality Check Done'
+    /*stage('SonarQube analysis') {
+        withSonarQubeEnv('SonarQube') {
+            sh "./gradlew sonarqube"
+        }
     }
+    stage("Quality gate") {
+        waitForQualityGate abortPipeline: true
+    }*/
 
     stage('Test'){
         sh './mvnw test'
@@ -26,18 +31,12 @@ node {
     }
 
     stage('Building image') {
-        script {
-          sh 'curl -LJO https://raw.githubusercontent.com/thisiskushal/jfrog-demo-project/main/Dockerfile'
-          dockerImage = docker.build imagename
-        }
+        sh 'curl -LJO https://raw.githubusercontent.com/thisiskushal/jfrog-demo-project/main/Dockerfile'
+        sh 'docker build -t thisiskushal/spring-petclinic:$BUILD_NUMBER .'
     }
 
     stage('Deploy Image') {
-        script {
-          docker.withRegistry( '', registryCredential ) {
-            dockerImage.push("$BUILD_NUMBER")
-             dockerImage.push('latest')
-          }
-        }
+        sh 'docker tag test:1 santoshkushaldemo.jfrog.io/kushaldemo-docker/test1:123'
+        sh 'docker push santoshkushaldemo.jfrog.io/kushaldemo-docker/test1:123'
     }
 }

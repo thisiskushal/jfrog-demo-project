@@ -33,11 +33,11 @@ node {
 
     stage('Building image') {
         sh 'curl -LJO https://raw.githubusercontent.com/thisiskushal/jfrog-demo-project/main/Dockerfile'
-        sh 'docker build -t ${imagename} .'
+        sh 'docker build -t thisiskushal/spring-petclinic:$BUILD_NUMBER .'
     }
 
     stage('Deploy Image') {
-        sh 'docker tag $imagename santoshkushaldemo.jfrog.io/kushaldemo-docker/$imagename'
-        sh 'docker push santoshkushaldemo.jfrog.io/kushaldemo-docker/$imagename'
+        sh 'docker tag thisiskushal/spring-petclinic:$BUILD_NUMBER santoshkushaldemo.jfrog.io/kushaldemo-docker/thisiskushal/spring-petclinic:$BUILD_NUMBER'
+        sh 'docker push santoshkushaldemo.jfrog.io/kushaldemo-docker/thisiskushal/spring-petclinic:$BUILD_NUMBER'
     }
 }

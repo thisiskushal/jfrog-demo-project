@@ -10,7 +10,7 @@ node {
     }
 
     stage('Compile'){
-        sh 'mvnw compile'
+        sh './mvnw compile'
     }
 
     stage('Code Quality'){
@@ -18,11 +18,11 @@ node {
     }
 
     stage('Test'){
-        sh 'mvnw test'
+        sh './mvnw test'
     }
 
     stage('Package'){
-        sh 'mvnw -DskipTests clean package'
+        sh './mvnw -DskipTests clean package'
     }
 
     stage('Building image') {

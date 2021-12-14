@@ -1,6 +1,6 @@
 node {
     environment {
-        imagename = 'thisiskushal/spring-petclinic'
+        imagename = 'thisiskushal/spring-petclinic:$BUILD_NUMBER'
         registryCredential = 'JfrogCreds'
         dockerImage = ''
     }
@@ -32,11 +32,11 @@ node {
 
     stage('Building image') {
         sh 'curl -LJO https://raw.githubusercontent.com/thisiskushal/jfrog-demo-project/main/Dockerfile'
-        sh 'docker build -t thisiskushal/spring-petclinic:$BUILD_NUMBER .'
+        sh 'docker build -t $imagename .'
     }
 
     stage('Deploy Image') {
-        sh 'docker tag test:1 santoshkushaldemo.jfrog.io/kushaldemo-docker/test1:123'
-        sh 'docker push santoshkushaldemo.jfrog.io/kushaldemo-docker/test1:123'
+        sh 'docker tag $imagename santoshkushaldemo.jfrog.io/kushaldemo-docker/$imagename'
+        sh 'docker push santoshkushaldemo.jfrog.io/kushaldemo-docker/$imagename'
     }
 }

@@ -32,7 +32,7 @@ node {
 
     stage('Building image') {
         sh 'curl -LJO https://raw.githubusercontent.com/thisiskushal/jfrog-demo-project/main/Dockerfile'
-        sh 'docker build -t $imagename .'
+        sh 'docker build -t imagename .'
     }
 
     stage('Deploy Image') {

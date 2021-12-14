@@ -30,6 +30,10 @@ node {
     stage('Package'){
         sh './mvnw -DskipTests clean package'
     }
+    
+    stage('Deploy'){
+        sh './mvnw -DskipTests deploy'
+    }
 
     stage('Building image') {
         sh 'curl -LJO https://raw.githubusercontent.com/thisiskushal/jfrog-demo-project/main/Dockerfile'

@@ -41,7 +41,7 @@ node {
     }
 
     stage('Deploy Image') {
-        sh 'docker tag thisiskushal/spring-petclinic:$BUILD_NUMBER kushalmadireddy.jfrog.io/kushaldemo-docker/thisiskushal/spring-petclinic:$BUILD_NUMBER'
-        sh 'docker push kushalmadireddy.jfrog.io/kushaldemo-docker/thisiskushal/spring-petclinic:$BUILD_NUMBER'
+        sh 'docker tag thisiskushal/spring-petclinic:$BUILD_NUMBER kushalmadireddy.jfrog.io/demo-docker-virtual/thisiskushal/spring-petclinic:$BUILD_NUMBER'
+        sh 'docker push kushalmadireddy.jfrog.io/demo-docker-virtual/thisiskushal/spring-petclinic:$BUILD_NUMBER'
     }
 }
